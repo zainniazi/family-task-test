@@ -61,11 +61,9 @@
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\tables\Member.sql" />
+    <Build Include="dbo\tables\Task.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Sql.publish.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="dbo\tables\Task.sql" />
   </ItemGroup>
 </Project>
