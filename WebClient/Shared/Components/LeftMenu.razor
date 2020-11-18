@@ -4,6 +4,7 @@
 @namespace WebClient.Shared.Components
 
 @inject WebClient.Abstractions.IMemberDataService memberService
+@inject WebClient.Abstractions.ITaskDataService taskService
 <style>
     .menu-wrapper {
         background: #FBFBFB;
@@ -19,6 +20,16 @@
         display: flex;
         align-items: center;
         border: 3px solid #FFFFFF;
+    }
+    .menu-wrapper .menu-item.on-drag {
+        box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.12);
+        transform: scale(0.99);
+        background: #F5F5F5;
+        border: 3px solid #F5F5F5;
+    }
+    .menu-wrapper .menu-item.drag-disable {
+        pointer-events: none;
+        cursor: not-allowed;
     }
     .menu-wrapper .menu-item.active {
         border: 3px solid #CC1778;
@@ -42,10 +53,14 @@
         font-size: 24px;
         line-height: 36px;
     }
+    .menu-wrapper .menu-item-label {
+        pointer-events: none;
+    }
     .menu-wrapper .avtar {
         width: 32px;
         height: 32px;
         border-radius: 50%;
+        pointer-events: none;
     }
 
     @@media(max-width: 1400px) {
@@ -67,13 +82,19 @@
 </style>
 
 <div class="menu-wrapper col-12 p-0">
-    @if(MenuItems != null && MenuItems.Length > 0) {
+    @if(MenuItems != null && MenuItems.Any()) {
         @foreach (var item in MenuItems) {
-            <div class="menu-item col-10 offset-1 p-3 my-4 p-sm-2 @(item.isActive ? "active" : "")" @onclick="@(e => SelectMember(item.referenceId))">
+            <div class="menu-item col-10 offset-1 p-3 my-4 p-sm-2 @(item.isActive ? "active" : "") @item.draggingEffect" @onclick="@(e => SelectMember(item.referenceId))"
+                 ondragover="event.preventDefault();" 
+                @ondragenter="@(e => OnContainerDragEnter(item))" 
+                @ondragleave="@(e => OnContainerDragLeave(item))"
+                @ondrop="@(e => OnContainerDrop(item))"
+                >
+
                 @if(item.iconColor != null) {
                     <div class="avtar mr-3" style="background-color: @(item.iconColor);"> </div>
                 }
-                <div class="label"> @item.label </div>
+                <div class="label menu-item-label"> @item.label </div>
             </div>
         }
     }
@@ -95,7 +116,46 @@
             SetActiveItem(memberService.SelectedMember.Id);
         }
 
+        ToggleAllTaskEntity();
         return base.OnInitializedAsync();
+    }
+
+    public void OnContainerDragEnter(MenuItem menuItem)
+    {
+        if(menuItem.referenceId != Guid.Empty && taskService.SelectedTask.AssignedMemberId != menuItem.referenceId)
+            MenuItems.FirstOrDefault(x => x.referenceId == menuItem.referenceId).draggingEffect = "on-drag";
+        else
+            MenuItems.FirstOrDefault(x => x.referenceId == menuItem.referenceId).draggingEffect = "drag-disable";
+    }
+
+    public void OnContainerDrop(MenuItem menuItem)
+    {
+
+        OnContainerDragLeave(menuItem);
+        if (menuItem.referenceId != Guid.Empty && taskService.SelectedTask.AssignedMemberId != menuItem.referenceId)
+        {
+            var task = taskService.SelectedTask;
+            task.AssignedMemberId = menuItem.referenceId;
+            taskService.AssignTask(task);
+        }
+    }
+
+    public void OnContainerDragLeave(MenuItem menuItem)
+    {
+        MenuItems.FirstOrDefault(x => x.referenceId == menuItem.referenceId).draggingEffect = string.Empty;
+    }
+
+    private void ToggleAllTaskEntity()
+    {
+        if (PageTitle == "ManageTasks" && !MenuItems.Contains(AllTasks))
+        {
+            InactivateAllItems();
+            MenuItems.Insert(0, AllTasks);
+            MemberServiceOnSelectedMemberChanged(this, null);
+        }
+        else if (MenuItems.Contains(AllTasks))
+            MenuItems.Remove(AllTasks);
+
     }
 
     private void MemberServiceOnSelectedMemberChanged(object sender, EventArgs e)
@@ -109,10 +169,19 @@
     private void MemberServiceOnMembersChanged(object sender, EventArgs e)
     {
         MenuItems = memberService.Members.ToMenuItems();
+        ToggleAllTaskEntity();
         StateHasChanged();
     }
 
-    [Parameter] public MenuItem[] MenuItems {get; set;}
+    [Parameter] public List<MenuItem> MenuItems {get; set;}
+    [Parameter] public string PageTitle { get; set; }
+    private MenuItem AllTasks = new MenuItem()
+    {
+        isActive = true,
+        iconColor = "transparent",
+        label = "All Tasks",
+        referenceId = Guid.Empty
+    };
 
     private void InactivateAllItems()
     {
