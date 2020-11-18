@@ -5,8 +5,8 @@ using System.Text;
 
 namespace Domain.Queries
 {
-    public class GetAllMembersQueryResult
+    public class GetAllTasksQueryResult
     {
-        public IEnumerable<MemberVm> Payload { get; set; }        
+        public IEnumerable<TaskVm> Payload { get; set; }
     }
 }
