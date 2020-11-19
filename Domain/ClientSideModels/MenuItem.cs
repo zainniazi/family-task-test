@@ -8,5 +8,6 @@ namespace Domain.ClientSideModels
         public string iconColor { get; set; }
         public string label { get; set; }
         public Guid referenceId { get; set; }
+        public string DraggingEffect { get; set; }
     }
 }

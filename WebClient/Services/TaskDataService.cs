@@ -53,6 +53,11 @@ namespace WebClient.Services
             return await httpClient.GetJsonAsync<ToggleTaskCommandResult>($"/api/Tasks/{id}/toggle-complete");
         }
 
+        private async Task<AssignMemberCommandResult> Assign(AssignMemberCommand command)
+        {
+            return await httpClient.PostJsonAsync<AssignMemberCommandResult>("/api/Tasks/assign-member", command);
+        }
+
         public void SelectTask(Guid id)
         {
             SelectedTask = Tasks.SingleOrDefault(t => t.Id == id);
@@ -72,6 +77,15 @@ namespace WebClient.Services
         {
             var result = await Create(model.ToCreateTaskCommand());
             if(result != null)
+                Loadtasks();
+
+            TasksUpdated?.Invoke(this, null);
+        }
+
+        public async Task AssignTask(TaskVm model)
+        {
+            var result = await Assign(model.ToAssignMemberCommand());
+            if(result != null && result.Succeed)
                 Loadtasks();
 
             TasksUpdated?.Invoke(this, null);

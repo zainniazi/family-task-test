@@ -17,5 +17,15 @@ namespace Core.Extensions.ModelConversion
             };
             return command;
         }
+
+        public static AssignMemberCommand ToAssignMemberCommand(this TaskVm model)
+        {
+            var command = new AssignMemberCommand()
+            {
+                TaskId = model.Id,
+                MemberId = (Guid)model.AssignedMemberId
+            };
+            return command;
+        }
     }
 }
