@@ -1,27 +1,57 @@
-﻿using System;
+﻿using Core.Extensions.ModelConversion;
+using Domain.Commands;
+using Domain.Queries;
+using Domain.ViewModel;
+using Microsoft.AspNetCore.Components;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using WebClient.Abstractions;
 using WebClient.Shared.Models;
 
 namespace WebClient.Services
 {
-    public class TaskDataService: ITaskDataService
+    public class TaskDataService : ITaskDataService
     {
-        public TaskDataService()
+        private readonly HttpClient httpClient;
+        public TaskDataService(IHttpClientFactory clientFactory)
         {
-            Tasks = new List<TaskModel>();
+            httpClient = clientFactory.CreateClient("FamilyTaskAPI");
+            tasks = new List<TaskVm>();
+            Loadtasks();
         }
 
+        private async void Loadtasks()
+        {
+            tasks = (await GetAllTasks()).Payload;
+            TasksUpdated?.Invoke(this, null);
+        }
 
+        private IEnumerable<TaskVm> tasks;
+        public IEnumerable<TaskVm> Tasks => tasks;
 
-
-        public List<TaskModel> Tasks { get; private set; }
-        public TaskModel SelectedTask { get; private set; }
+        public TaskVm SelectedTask { get; private set; }
 
 
         public event EventHandler TasksUpdated;
         public event EventHandler TaskSelected;
+
+        private async Task<CreateTaskCommandResult> Create(CreateTaskCommand command)
+        {
+            return await httpClient.PostJsonAsync<CreateTaskCommandResult>("/api/tasks", command);
+        }
+
+        private async Task<GetAllTasksQueryResult> GetAllTasks()
+        {
+            return await httpClient.GetJsonAsync<GetAllTasksQueryResult>("tasks");
+        }
+
+        private async Task<ToggleTaskCommandResult> Toggle(Guid id)
+        {
+            return await httpClient.GetJsonAsync<ToggleTaskCommandResult>($"/api/Tasks/{id}/toggle-complete");
+        }
 
         public void SelectTask(Guid id)
         {
@@ -29,22 +59,21 @@ namespace WebClient.Services
             TasksUpdated?.Invoke(this, null);
         }
 
-        public void ToggleTask(Guid id)
+        public async Task ToggleTask(Guid id)
         {
-            foreach (var taskModel in Tasks)
-            {
-                if (taskModel.Id == id)
-                {
-                    taskModel.IsDone = !taskModel.IsDone;
-                }
-            }
-
+            var result = await Toggle(id);
+            if(result != null)
+                Loadtasks();
+            
             TasksUpdated?.Invoke(this, null);
         }
 
-        public void AddTask(TaskModel model)
+        public async Task AddTask(TaskVm model)
         {
-            Tasks.Add(model);
+            var result = await Create(model.ToCreateTaskCommand());
+            if(result != null)
+                Loadtasks();
+
             TasksUpdated?.Invoke(this, null);
         }
     }

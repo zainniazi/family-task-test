@@ -11,7 +11,7 @@
 @if(isLoaded) {
     <div class="page-wrapper row m-0 col-12 p-0">
         <div class="col-4 p-0">
-            <LeftMenu />
+            <LeftMenu PageTitle="ManageTasks"  />
         </div>
         <div class="col-8 p-0">
             @if (showLister) {
@@ -58,18 +58,18 @@
 
     private void OnAddItem()
     {
-        var task = new TaskModel()
+        var task = new TaskVm()
         {
             Id = Guid.NewGuid(),
-            IsDone = false,
-            Text = newTask
+            IsComplete = false,
+            Subject = newTask
         };
 
         newTask = string.Empty;
 
         if (memberService.SelectedMember != null)
         {
-            task.Member = memberService.SelectedMember.Id;
+            task.AssignedMemberId = memberService.SelectedMember.Id;
         }
         taskDataService.AddTask(task);
         StateHasChanged();
