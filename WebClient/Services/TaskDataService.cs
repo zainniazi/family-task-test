@@ -68,7 +68,7 @@ namespace WebClient.Services
             TasksUpdated?.Invoke(this, null);
         }
 
-        public async Task AddTask(TaskVm model)
+        public async Task AddTask(CreateTaskVm model)
         {
             var result = await Create(model.ToCreateTaskCommand());
             if(result != null)

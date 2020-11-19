@@ -8,7 +8,7 @@ namespace Core.Extensions.ModelConversion
 {
     public static class TaskConversionExtensions
     {
-        public static CreateTaskCommand ToCreateTaskCommand(this TaskVm model)
+        public static CreateTaskCommand ToCreateTaskCommand(this CreateTaskVm model)
         {
             var command = new CreateTaskCommand()
             {
