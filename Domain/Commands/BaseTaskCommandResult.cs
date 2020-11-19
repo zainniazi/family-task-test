@@ -4,7 +4,8 @@ using System.Text;
 
 namespace Domain.Commands
 {
-    public class ToggleTaskCommandResult : BaseTaskCommandResult
+    public class BaseTaskCommandResult
     {
+        public bool Succeed { get; set; }
     }
 }

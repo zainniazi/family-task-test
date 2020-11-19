@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Core;
 using Core.Abstractions.Repositories;
 using Core.Abstractions.Services;
 using Domain.Commands;
@@ -28,6 +29,12 @@ namespace Services
 
         public async Task<CreateTaskCommandResult> CreateTaskCommandHandler(CreateTaskCommand command)
         {
+            if (command.AssignedMemberId != null)
+            {
+                var memberExist = await _memberRepository.ExistsAsync((Guid)command.AssignedMemberId);
+                if (!memberExist)
+                    throw new NotFoundException<Guid>(typeof(Member).Name, (Guid)command.AssignedMemberId);
+            }
             var task = _mapper.Map<Domain.DataModels.Task>(command);
             var persistedTask = await _taskRepository.CreateRecordAsync(task);
 

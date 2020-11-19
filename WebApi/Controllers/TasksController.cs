@@ -29,9 +29,16 @@ namespace WebApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-
-            var result = await _taskService.CreateTaskCommandHandler(command);
-            return Created($"/api/task/{result.Payload.Id}", result);
+            try
+            {
+                var result = await _taskService.CreateTaskCommandHandler(command);
+                return Created($"/api/task/{result.Payload.Id}", result);
+            }
+            catch (NotFoundException<Guid>)
+            {
+                ModelState.AddModelError(nameof(command.AssignedMemberId), "Member does not exist");
+                return BadRequest(ModelState);
+            }
         }
 
         [Route("{id}/toggle-complete")]
@@ -39,7 +46,7 @@ namespace WebApi.Controllers
         [ProducesResponseType(typeof(ToggleTaskCommandResult), StatusCodes.Status200OK)]
         public async Task<IActionResult> Toggle(Guid? id)
         {
-            if(id == null)
+            if (id == null)
             {
                 return BadRequest();
             }

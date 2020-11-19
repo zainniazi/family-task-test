@@ -4,9 +4,8 @@ using System.Text;
 
 namespace Domain.Commands
 {
-    public class AssignMemberCommandResult
+    public class AssignMemberCommandResult : BaseTaskCommandResult
     {
-        public bool Succeed { get; set; }
         public string Message { get; set; }
     }
 }
