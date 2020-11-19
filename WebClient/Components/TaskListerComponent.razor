@@ -47,7 +47,7 @@
 <div class="task-wrapper">
     @foreach (var item in tasks)
     {
-        <div class="task-item p-3 my-3 row m-0">
+        <div draggable="true" @ondragstart="@(e => DragStartedEvent(item))" class="task-item p-3 my-3 row m-0">
             <div class="col-10 p-0">
                 <Check TValue="bool" Checked="@item.IsComplete" CheckedChanged="@(val => ToggleTask(item))">
                     <span class="@(item.IsComplete ? "done-text" : "")">@item.Subject</span>
@@ -73,6 +73,11 @@
         taskService.TasksUpdated += TaskServiceOnTasksUpdated;
         LoadCurrentTasks();
         return base.OnInitializedAsync();
+    }
+
+    private void DragStartedEvent(TaskVm taskVm)
+    {
+        taskService.SelectTask(taskVm.Id);
     }
 
     public string GetMemeberColor(Guid? id)
