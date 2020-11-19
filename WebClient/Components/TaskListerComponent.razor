@@ -51,7 +51,7 @@
 </style>
 
 <div class="task-wrapper">
-    @foreach (var item in tasks)
+    @foreach (var item in _tasks)
     {
         <div draggable="true" @ondragstart="@(e => DragStartedEvent(item))" class="task-item p-3 my-3 row m-0">
             <div class="col-10 p-0">
@@ -71,8 +71,8 @@
 </div>
 
 @code  {
-    private List<TaskVm> tasks = new List<TaskVm>();
-    private MemberVm selectedMember;
+    private List<TaskVm> _tasks = new List<TaskVm>();
+    private MemberVm _selectedMember;
 
     protected override Task OnInitializedAsync()
     {
@@ -105,16 +105,16 @@
 
     private void LoadCurrentTasks()
     {
-        selectedMember = memberService.SelectedMember;
+        _selectedMember = memberService.SelectedMember;
 
-        if (selectedMember == null || selectedMember.Id == Guid.Empty)
+        if (_selectedMember == null || _selectedMember.Id == Guid.Empty)
         {
-            tasks = taskService.Tasks.ToList();
+            _tasks = taskService.Tasks.ToList();
             StateHasChanged();
             return;
         };
 
-        tasks = taskService.Tasks.Where(t => t.AssignedMemberId == selectedMember.Id).ToList();
+        _tasks = taskService.Tasks.Where(t => t.AssignedMemberId == _selectedMember.Id).ToList();
         StateHasChanged();
     }
 

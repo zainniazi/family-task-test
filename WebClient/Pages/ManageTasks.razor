@@ -17,13 +17,13 @@
         <div class="col-8 p-0">
             @if (showLister)
             {
-                <EditForm Model="@createTaskVm" OnValidSubmit="@AddTaskSubmit">
+                <EditForm Model="@_createTaskVm" OnValidSubmit="@AddTaskSubmit">
                     <DataAnnotationsValidator />
                     <div class="col-10 offset-1 pt-5">
                         <div class="row m-0">
                             <Field class="col-9 p-0 custom-input">
-                                <TextEdit Placeholder="Enter New Task" @bind-text="@createTaskVm.Subject" />
-                                <ValidationMessage For="() => createTaskVm.Subject" />
+                                <TextEdit Placeholder="Enter New Task" @bind-text="@_createTaskVm.Subject" />
+                                <ValidationMessage For="() => _createTaskVm.Subject" />
                             </Field>
                             <div class="col-3 p-0 text-right">
                                 <button type="submit" class="add-btn px-4">Add</button>
@@ -47,7 +47,7 @@
 @code {
 
     public List<MemberVm> members;
-    private CreateTaskVm createTaskVm = new CreateTaskVm();
+    private CreateTaskVm _createTaskVm = new CreateTaskVm();
 
     private bool isLoaded;
     private bool showLister;
@@ -63,10 +63,10 @@
     {
         if (memberService.SelectedMember != null)
         {
-            createTaskVm.AssignedMemberId = memberService.SelectedMember.Id;
+            _createTaskVm.AssignedMemberId = memberService.SelectedMember.Id;
         }
-        await taskDataService.AddTask(createTaskVm);
-        createTaskVm = new CreateTaskVm();
+        await taskDataService.AddTask(_createTaskVm);
+        _createTaskVm = new CreateTaskVm();
         StateHasChanged();
     }
 }

@@ -18,7 +18,6 @@ namespace WebClient.Abstractions
         TaskVm SelectedTask { get; }
 
         event EventHandler TasksUpdated;
-        event EventHandler TaskSelected;
 
         void SelectTask(Guid id);
         Task ToggleTask(Guid id);

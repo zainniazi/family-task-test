@@ -15,47 +15,46 @@ namespace WebClient.Services
 {
     public class TaskDataService : ITaskDataService
     {
-        private readonly HttpClient httpClient;
+        private readonly HttpClient _httpClient;
         public TaskDataService(IHttpClientFactory clientFactory)
         {
-            httpClient = clientFactory.CreateClient("FamilyTaskAPI");
-            tasks = new List<TaskVm>();
+            _httpClient = clientFactory.CreateClient("FamilyTaskAPI");
+            _tasks = new List<TaskVm>();
             Loadtasks();
         }
 
         private async void Loadtasks()
         {
-            tasks = (await GetAllTasks()).Payload;
+            _tasks = (await GetAllTasks()).Payload;
             TasksUpdated?.Invoke(this, null);
         }
 
-        private IEnumerable<TaskVm> tasks;
-        public IEnumerable<TaskVm> Tasks => tasks;
+        private IEnumerable<TaskVm> _tasks;
+        public IEnumerable<TaskVm> Tasks => _tasks;
 
         public TaskVm SelectedTask { get; private set; }
 
 
         public event EventHandler TasksUpdated;
-        public event EventHandler TaskSelected;
 
         private async Task<CreateTaskCommandResult> Create(CreateTaskCommand command)
         {
-            return await httpClient.PostJsonAsync<CreateTaskCommandResult>("/api/tasks", command);
+            return await _httpClient.PostJsonAsync<CreateTaskCommandResult>("/api/tasks", command);
         }
 
         private async Task<GetAllTasksQueryResult> GetAllTasks()
         {
-            return await httpClient.GetJsonAsync<GetAllTasksQueryResult>("tasks");
+            return await _httpClient.GetJsonAsync<GetAllTasksQueryResult>("tasks");
         }
 
         private async Task<ToggleTaskCommandResult> Toggle(Guid id)
         {
-            return await httpClient.GetJsonAsync<ToggleTaskCommandResult>($"/api/Tasks/{id}/toggle-complete");
+            return await _httpClient.GetJsonAsync<ToggleTaskCommandResult>($"/api/Tasks/{id}/toggle-complete");
         }
 
         private async Task<AssignMemberCommandResult> Assign(AssignMemberCommand command)
         {
-            return await httpClient.PostJsonAsync<AssignMemberCommandResult>("/api/Tasks/assign-member", command);
+            return await _httpClient.PostJsonAsync<AssignMemberCommandResult>("/api/Tasks/assign-member", command);
         }
 
         public void SelectTask(Guid id)
