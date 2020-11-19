@@ -63,7 +63,7 @@ namespace Services
         public async Task<GetAllTasksQueryResult> GetAllTasksQueryHandler()
         {
             IEnumerable<TaskVm> vm = new List<TaskVm>();
-            var tasks = await _taskRepository.Reset().ToListAsync();
+            var tasks = await _taskRepository.Reset().Include(x=>x.AssignedMember).ToListAsync();
 
             if (tasks != null && tasks.Any())
                 vm = _mapper.Map<IEnumerable<TaskVm>>(tasks);
@@ -77,7 +77,7 @@ namespace Services
         public async Task<GetAllTasksByMemberQueryResult> GetAllTasksByMemberQueryHandler(Guid memberId)
         {
             IEnumerable<TaskVm> vm = new List<TaskVm>();
-            var tasks = await _taskRepository.Reset().GetAllByMemberId(memberId);
+            var tasks = await _taskRepository.Reset().Include(x => x.AssignedMember).GetAllByMemberId(memberId);
 
             if (tasks != null && tasks.Any())
                 vm = _mapper.Map<IEnumerable<TaskVm>>(tasks);

@@ -10,5 +10,6 @@ namespace Domain.ViewModel
         public string Subject { get; set; }
         public bool IsComplete { get; set; }
         public Guid? AssignedMemberId { get; set; }
+        public MemberVm AssignedMember { get; set; }
     }
 }
