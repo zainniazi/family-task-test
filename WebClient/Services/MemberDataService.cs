@@ -98,11 +98,11 @@ namespace WebClient.Services
 
         public void SelectMember(Guid id)
         {
-            if (members.All(memberVm => memberVm.Id != id)) return;
-            {
+            if (members.All(memberVm => memberVm.Id != id))
+                SelectedMember = new MemberVm() { Id = Guid.Empty };
+            else
                 SelectedMember = members.SingleOrDefault(memberVm => memberVm.Id == id);
-                SelectedMemberChanged?.Invoke(this, null);
-            }
+            SelectedMemberChanged?.Invoke(this, null);
         }
 
         public void SelectNullMember()

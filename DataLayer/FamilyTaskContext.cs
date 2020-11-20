@@ -10,10 +10,10 @@ namespace DataLayer
 
         public FamilyTaskContext(DbContextOptions<FamilyTaskContext> options):base(options)
         {
-
         }
 
         public DbSet<Member> Members { get; set; }
+        public DbSet<Task> Tasks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,6 +23,19 @@ namespace DataLayer
                 entity.HasKey(k => k.Id);
                 entity.ToTable("Member");
             });
+
+            modelBuilder.Entity<Task>(entity =>
+            {
+                entity.HasKey(k => k.Id);
+                entity.ToTable("Task");
+            });
+
+            modelBuilder.Entity<Task>()
+                .HasOne(t => t.AssignedMember)
+                .WithMany(x => x.Tasks)
+                .HasForeignKey(m => m.AssignedMemberId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Task_AssignedMemberId");
         }
     }
 }

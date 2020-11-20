@@ -8,28 +8,36 @@
 @inject IMemberDataService memberService;
 @inject ITaskDataService taskDataService;
 
-@if(isLoaded) {
+@if (isLoaded)
+{
     <div class="page-wrapper row m-0 col-12 p-0">
         <div class="col-4 p-0">
-            <LeftMenu />
+            <LeftMenu PageTitle="ManageTasks" />
         </div>
         <div class="col-8 p-0">
-            @if (showLister) {
-                <div class="col-10 offset-1 pt-5">
-                    <div class="row m-0">
-                        <Field class="col-9 p-0 custom-input">
-                            <TextEdit Placeholder="Enter New Task" @bind-text="@newTask"/>
-                        </Field>
-                        <div class="col-3 p-0 text-right">
-                            <Button class="add-btn px-4" @onclick="@OnAddItem">Add</Button>
+            @if (showLister)
+            {
+                <EditForm Model="@_createTaskVm" OnValidSubmit="@AddTaskSubmit">
+                    <FluentValidationValidator />
+                    <Blazorise.ValidationSummary />
+                    <div class="col-10 offset-1 pt-5">
+                        <div class="row m-0">
+                            <Field class="col-9 p-0 custom-input">
+                                <TextEdit Placeholder="Enter New Task" @bind-text="@_createTaskVm.Subject" />
+                                <ValidationMessage For="() => _createTaskVm.Subject" />
+                            </Field>
+                            <div class="col-3 p-0 text-right">
+                                <button type="submit" class="add-btn px-4">Add</button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </EditForm>
                 <div class="col-10 offset-1">
                     <TaskListerComponent />
                 </div>
             }
-            @if(false) {
+            @if (false)
+            {
                 <div class="col-10 offset-1 pt-5">
                 </div>
             }
@@ -40,8 +48,7 @@
 @code {
 
     public List<MemberVm> members;
-    public string newTask;
-
+    private CreateTaskVm _createTaskVm = new CreateTaskVm();
 
     private bool isLoaded;
     private bool showLister;
@@ -53,26 +60,14 @@
         return base.OnInitializedAsync();
     }
 
-
-    
-
-    private void OnAddItem()
+    private async Task AddTaskSubmit()
     {
-        var task = new TaskModel()
-        {
-            Id = Guid.NewGuid(),
-            IsDone = false,
-            Text = newTask
-        };
-
-        newTask = string.Empty;
-
         if (memberService.SelectedMember != null)
         {
-            task.Member = memberService.SelectedMember.Id;
+            _createTaskVm.AssignedMemberId = memberService.SelectedMember.Id;
         }
-        taskDataService.AddTask(task);
+        await taskDataService.AddTask(_createTaskVm);
+        _createTaskVm = new CreateTaskVm();
         StateHasChanged();
     }
-
 }
